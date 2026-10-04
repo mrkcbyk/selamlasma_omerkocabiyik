@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#12A8BC">
+    <title>Türkçe ve Türk Kültürü: Nezaket</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Yuvarlak, çocuk dostu ve Türkçe karakter destekli yazı tipleri -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400..700&family=Nunito:wght@400..900&display=swap" rel="stylesheet">
+    <!-- Efekt Kütüphaneleri -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: { extend: { fontFamily: { sans: ['Nunito', 'sans-serif'], display: ['Fredoka', 'Nunito', 'sans-serif'] } } }
+        }
+    </script>
+
+    <style>
+        :root {
+            --ink: #1B2559;      /* lacivert: yazı ve kalın çizgiler */
+            --turq: #12A8BC;     /* çini turkuazı */
+            --tulip: #F0443A;    /* lale kırmızısı */
+            --sun: #FFC531;      /* güneş sarısı */
+            --violet: #7B4DFF;   /* mürdüm moru */
+            --mint: #2DCB8F;     /* nane yeşili */
+            --coral: #FF7A59;
+        }
+        * { -webkit-tap-highlight-color: transparent; }
+        html, body { margin: 0; padding: 0; }
+        body { min-height: 100vh; background: #DFF6FA; color: var(--ink); user-select: none; overflow-x: hidden; font-family: 'Nunito', sans-serif; }
+        :focus-visible { outline: 3px solid var(--violet); outline-offset: 2px; }
+
+        /* ---------- Arka plan: Selçuklu yıldızı deseni + renkli ışık lekeleri ---------- */
+        .bg-animated { position: fixed; inset: 0; z-index: -3; background: linear-gradient(135deg, #DFF6FA, #FFF3CF, #FFE2EA, #E6E2FF); background-size: 400% 400%; animation: gradientBG 24s ease infinite; }
+        .bg-pattern { position: fixed; inset: 0; z-index: -2; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E%3Cg fill='none' stroke='%231B2559' stroke-opacity='.09' stroke-width='1.5'%3E%3Crect x='14' y='14' width='36' height='36'/%3E%3Crect x='14' y='14' width='36' height='36' transform='rotate(45 32 32)'/%3E%3C/g%3E%3C/svg%3E"); }
+        .floating-blobs { position: fixed; inset: 0; pointer-events: none; z-index: -1; overflow: hidden; }
+        .blob { position: absolute; filter: blur(70px); opacity: .42; animation: float 16s infinite ease-in-out alternate; }
+        .blob1 { width: 38vw; height: 38vw; background: var(--turq); top: -12%; left: -10%; }
+        .blob2 { width: 40vw; height: 40vw; background: var(--violet); bottom: -18%; right: -10%; animation-delay: -3s; }
+        .blob3 { width: 28vw; height: 28vw; background: var(--sun); top: 35%; left: 55%; animation-delay: -7s; }
+        .blob4 { width: 26vw; height: 26vw; background: var(--tulip); bottom: 5%; left: -6%; opacity: .28; animation-delay: -10s; }
+        @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        @keyframes float { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(40px, -40px) scale(1.12); } }
+
+        /* ---------- Ekran ve panel ---------- */
+        .screen { display: none; width: 100%; min-height: 100vh; min-height: 100dvh; flex-direction: column; align-items: center; justify-content: center; padding: 4.6rem 1rem 3rem; box-sizing: border-box; }
+        .screen.active { display: flex; }
+        .panel { background: #fff; border: 3px solid var(--ink); border-radius: 28px; box-shadow: 7px 7px 0 var(--ink); }
+        .font-display { font-family: 'Fredoka', 'Nunito', sans-serif; }
+
+        .footer-mark { position: fixed; bottom: 10px; font-size: 10px; font-weight: 900; color: var(--ink); background: rgba(255,255,255,.9); border: 2px solid var(--ink); border-radius: 999px; padding: 2px 10px; z-index: 50; pointer-events: none; letter-spacing: .02em; }
+        .stage-pill { background: #fff; border: 2.5px solid var(--ink); box-shadow: 0 3px 0 var(--ink); border-radius: 999px; padding: .3rem .9rem; font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: .9rem; display: flex; align-items: center; gap: .6rem; }
+        .dots { display: inline-flex; gap: 4px; }
+        .dots i { display: inline-block; width: 11px; height: 11px; border-radius: 50%; border: 2px solid var(--ink); background: #fff; }
+        .dots i.on { background: var(--sun); }
+
+        /* ---------- Butonlar ---------- */
+        .btn { font-family: 'Fredoka', sans-serif; font-weight: 600; color: #fff; border: 3px solid var(--ink); border-radius: 18px; box-shadow: 0 5px 0 var(--ink); cursor: pointer; transition: transform .08s, box-shadow .08s, filter .15s; display: inline-flex; align-items: center; justify-content: center; gap: .6rem; }
+        .btn:hover { filter: brightness(1.07); }
+        .btn:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--ink); }
+        .btn-tulip { background: var(--tulip); } .btn-mint { background: var(--mint); } .btn-turq { background: var(--turq); } .btn-violet { background: var(--violet); }
+        .btn-sun { background: var(--sun); color: var(--ink); } .btn-white { background: #fff; color: var(--ink); }
+
+        /* ---------- Hoparlör düğmeleri ---------- */
+        .speaker-btn { cursor: pointer; display: inline-flex; align-items: center; justify-content: center; transition: transform .15s; }
+        .spk { width: 34px; height: 34px; border-radius: 50%; background: var(--sun); color: var(--ink); border: 2.5px solid var(--ink); box-shadow: 0 2px 0 var(--ink); font-size: .8rem; flex-shrink: 0; }
+        .spk-sm { width: 28px; height: 28px; font-size: .68rem; }
+        .spk:hover { transform: scale(1.12) rotate(-6deg); }
+        .spk.playing { background: var(--tulip); color: #fff; animation: pulse .5s ease 2; }
+        @keyframes pulse { 50% { transform: scale(1.22); } }
+
+        /* ---------- Giriş ---------- */
+        .sticker { width: 58px; height: 58px; border-radius: 50%; border: 3px solid var(--ink); box-shadow: 0 4px 0 var(--ink); display: flex; align-items: center; justify-content: center; font-size: 1.7rem; }
+        .field { width: 100%; padding: .7rem 1rem; border: 3px solid var(--ink); border-radius: 14px; font-weight: 800; font-size: 1rem; color: var(--ink); background: #fff; outline: none; transition: box-shadow .15s; box-sizing: border-box; }
+        .field:focus { box-shadow: 0 0 0 4px rgba(123,77,255,.35); }
+        .label { display: block; font-size: .82rem; font-weight: 800; margin-bottom: .25rem; color: var(--ink); }
+
+        /* ---------- 1. Aşama ---------- */
+        .chip { background: #fff; border: 3px solid var(--ink); border-radius: 16px; box-shadow: 0 3px 0 var(--ink); padding: .35rem .5rem .35rem .85rem; font-weight: 800; display: flex; align-items: center; gap: .5rem; cursor: grab; touch-action: none; transition: transform .15s, box-shadow .15s, background .15s; font-size: .95rem; }
+        .chip:hover { transform: translateY(-2px); box-shadow: 0 5px 0 var(--ink); }
+        .chip:active { cursor: grabbing; }
+        .chip.selected { background: #FFF3C4; transform: translateY(-3px) rotate(-2deg); box-shadow: 0 6px 0 var(--ink), 0 0 0 4px var(--violet); }
+        .chip.dragging { opacity: .4; }
+        #words-pool { background: #F3EEFF; border: 3px dashed rgba(123,77,255,.55); border-radius: 22px; }
+        .time-card { border: 3px solid var(--ink); border-radius: 24px; box-shadow: 5px 5px 0 var(--ink); overflow: hidden; background: #fff; display: flex; flex-direction: column; }
+        .time-img { position: relative; height: clamp(150px, 24vh, 260px); display: flex; align-items: center; justify-content: center; font-size: 4.5rem; border-bottom: 3px solid var(--ink); }
+        .time-img img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+        .time-tag { position: absolute; left: 10px; bottom: 10px; z-index: 2; font-family: 'Fredoka', sans-serif; font-weight: 600; background: #fff; color: var(--ink); border: 2.5px solid var(--ink); border-radius: 999px; padding: .1rem .9rem; box-shadow: 0 3px 0 var(--ink); font-size: 1.1rem; }
+        .dropzone { flex: 1; min-height: 120px; padding: .7rem; transition: background .2s, box-shadow .2s; }
+        .dropzone .dropped-items { display: flex; flex-direction: column; gap: .5rem; align-items: center; min-height: 90px; }
+        .dropzone .dropped-items:empty { justify-content: center; }
+        .dropzone .dropped-items:empty::before { content: 'Kelimeleri buraya bırak'; font-size: .8rem; font-weight: 800; color: rgba(27,37,89,.45); text-align: center; }
+        .dropzone.dragover { box-shadow: inset 0 0 0 4px var(--violet); }
+        .dropzone.success { background: #D9F7E8 !important; box-shadow: inset 0 0 0 4px var(--mint); }
+        .dropzone.error { background: #FFE0DD !important; box-shadow: inset 0 0 0 4px var(--tulip); }
+
+        /* ---------- 2. Aşama: sohbet ---------- */
+        .chat-bg { background-color: #E7F8F1; background-image: radial-gradient(rgba(18,168,188,.2) 2px, transparent 2px); background-size: 26px 26px; }
+        .bubble-left { background: #fff; border: 3px solid var(--ink); border-radius: 22px 22px 22px 6px; box-shadow: 3px 3px 0 var(--ink); }
+        .chat-opt { background: #D6F0FF; border: 3px solid var(--ink); border-radius: 22px 22px 6px 22px; box-shadow: 3px 3px 0 var(--ink); padding: .6rem .8rem; font-weight: 800; display: flex; justify-content: space-between; align-items: center; gap: .6rem; cursor: pointer; transition: transform .12s, box-shadow .12s, background .15s; max-width: 94%; width: 100%; box-sizing: border-box; }
+        .chat-opt:hover { transform: translate(-2px, -2px); box-shadow: 5px 5px 0 var(--ink); }
+        .chat-opt.correct { background: #BFF3D9; }
+        .chat-opt.wrong { background: #FFCFCA; }
+        .dim { opacity: .45; }
+        .typing-dot { animation: typingBounce 1.4s infinite ease-in-out both; }
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; } .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes typingBounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+
+        /* ---------- 3. Aşama: çalışanlara selam ---------- */
+        .info-card { border: 3px solid var(--ink); border-radius: 20px; box-shadow: 4px 4px 0 var(--ink); padding: .9rem 1rem; display: flex; gap: .8rem; align-items: flex-start; }
+        .info-icon { width: 46px; height: 46px; border-radius: 14px; background: #fff; border: 3px solid var(--ink); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0; }
+        .worker-opt { background: #fff; border: 3px solid var(--ink); border-radius: 18px; box-shadow: 0 4px 0 var(--ink); padding: .7rem .9rem; display: flex; align-items: center; justify-content: space-between; gap: .6rem; font-weight: 800; cursor: pointer; transition: transform .12s, box-shadow .12s, background .15s; }
+        .worker-opt:hover { transform: translateY(-2px); box-shadow: 0 6px 0 var(--ink); background: #FFF8DC; }
+        .worker-opt.good { background: #BFF3D9; } .worker-opt.bad { background: #FFCFCA; }
+        .morale-track { height: 24px; background: #EEF1FA; border: 3px solid var(--ink); border-radius: 999px; overflow: hidden; padding: 2px; }
+        #morale-bar { height: 100%; border-radius: 999px; transition: width .7s ease-out; }
+        #morale-bar[data-level="low"] { background: linear-gradient(90deg, #F0443A, #FF9E5A); }
+        #morale-bar[data-level="mid"] { background: linear-gradient(90deg, #FFC531, #B5E04A); }
+        #morale-bar[data-level="high"] { background: linear-gradient(90deg, #2DCB8F, #6BE3A3); }
+        .t-low { color: var(--tulip); } .t-mid { color: #8A6A00; } .t-high { color: #0E9A67; }
+
+        ::-webkit-scrollbar { width: 8px; } ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(27,37,89,.3); border-radius: 10px; }
+
+        @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+    </style>
+</head>
+<body class="font-sans">
+
+    <!-- Dinamik Arkaplan -->
+    <div class="bg-animated"></div><div class="bg-pattern"></div>
+    <div class="floating-blobs"><div class="blob blob1"></div><div class="blob blob2"></div><div class="blob blob3"></div><div class="blob blob4"></div></div>
+
+    <!-- Logo (sol üst) -->
+    <img src="orjinal.svg" alt="Logo" class="fixed top-3 left-3 sm:top-5 sm:left-6 h-10 sm:h-12 w-auto z-50" style="pointer-events:none; filter: drop-shadow(0 2px 0 rgba(27,37,89,.25));">
+
+    <!-- Aşama göstergesi -->
+    <div class="fixed top-3 right-3 sm:top-5 sm:right-6 z-50 pointer-events-none" id="stage-badge-container">
+        <div class="stage-pill">
+            <span class="dots" id="stage-dots"><i class="on"></i><i></i><i></i></span>
+            <span id="stage-indicator">Aşama: 1 / 3</span>
+        </div>
+    </div>
+
+    <!-- İmza & Ders Adı -->
+    <div class="footer-mark left-3 sm:left-6">ÖMER KOCABIYIK</div>
+    <div class="footer-mark right-3 sm:right-6">TÜRKÇE VE TÜRK KÜLTÜRÜ DERSİ</div>
+
+    <!-- SES OYNATICILARI -->
+    <audio id="audio-alkis" src="alkis.mp3" preload="auto"></audio>
+    <audio id="audio-dong" src="dong.mp3" preload="auto"></audio>
+    <audio id="audio-tik" src="tik.mp3" preload="auto"></audio>
+    <audio id="audio-tus" src="tus.mp3" loop></audio>
+
+    <!-- ========================================== -->
+    <!-- GİRİŞ EKRANI                               -->
+    <!-- ========================================== -->
+    <div id="screen-intro" class="screen active">
+        <div class="panel w-full max-w-xl p-6 sm:p-9 relative overflow-hidden">
+            <div class="absolute inset-0 opacity-10 bg-cover bg-center pointer-events-none" style="background-image: url('arkaplan.png');"></div>
+            <div class="relative">
+                <div class="flex justify-center gap-3 mb-5" aria-hidden="true">
+                    <div class="sticker" style="background:var(--sun); transform:rotate(-8deg)">🌅</div>
+                    <div class="sticker" style="background:#7FD6F0; transform:rotate(5deg)">☀️</div>
+                    <div class="sticker" style="background:var(--coral); transform:rotate(-4deg)">🌇</div>
+                    <div class="sticker" style="background:#9A86FF; transform:rotate(8deg)">🌙</div>
+                </div>
+
+                <h1 class="font-display text-center text-3xl sm:text-5xl leading-tight mb-5" style="text-shadow: 3px 3px 0 var(--sun);">Kalpten Bir Sesle<br>Türkçeye Merhaba!</h1>
+
+                <p class="text-sm sm:text-base font-bold leading-relaxed p-4 mb-5" style="background:#FFF8DC; border:3px solid var(--ink); border-radius:20px; box-shadow:3px 3px 0 var(--ink);">
+                    Oyunumuz 3 aşamadan oluşmaktadır: Günün zamanlarına göre selamlaşma, karşılıklı sohbet etme ve çalışanlara uygun dileklerde bulunma. Kültürümüzün zarif selamlaşma kurallarını öğrenecek ve doğru sözcükleri seçeceksin.
+                    <i class="fa-solid fa-volume-high speaker-btn spk ml-1 align-middle" onclick="playAudio('bilgi.mp3', event)"></i>
+                </p>
+
+                <form id="intro-form" class="space-y-3" onsubmit="event.preventDefault(); startAdventure();">
+                    <div class="grid grid-cols-2 gap-3">
+                        <div><label class="label" for="input-name">Adın</label><input type="text" id="input-name" required class="field" autocomplete="off"></div>
+                        <div><label class="label" for="input-surname">Soyadın</label><input type="text" id="input-surname" required class="field" autocomplete="off"></div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div><label class="label" for="input-age">Yaşın</label><input type="number" id="input-age" min="3" max="99" required class="field"></div>
+                        <div><label class="label" for="input-country">Ülke</label><input type="text" id="input-country" required class="field" autocomplete="off"></div>
+                    </div>
+                    <p id="intro-error" class="text-sm font-black hidden" style="color:var(--tulip)">Lütfen adını ve soyadını gir!</p>
+                    <button type="submit" class="btn btn-tulip w-full py-4 text-xl mt-2">
+                        Öğrenmeye Başla <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- 1. AŞAMA: SÜRÜKLE BIRAK                    -->
+    <!-- ========================================== -->
+    <div id="screen-drag-drop" class="screen">
+        <div class="panel w-full max-w-6xl p-4 sm:p-6">
+
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0" style="background:var(--sun); border:3px solid var(--ink); box-shadow:0 3px 0 var(--ink);">
+                    <i class="fa-solid fa-sun text-xl"></i>
+                </div>
+                <div>
+                    <h2 class="font-display text-2xl sm:text-3xl flex items-center gap-3">
+                        Doğru Kutuya Yerleştir <i class="fa-solid fa-volume-high speaker-btn spk" onclick="playAudio('yonerge1.mp3', event)"></i>
+                    </h2>
+                    <p class="text-xs sm:text-sm font-bold opacity-75 mt-0.5">Kelimeleri ait oldukları zamanın kutusuna sürükle. Mobilde önce kelimeye, sonra kutuya dokun.</p>
+                </div>
+            </div>
+
+            <div id="words-pool" class="flex flex-wrap gap-3 justify-center mb-5 p-4"></div>
+
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5" id="dropzones-container"></div>
+
+            <div class="mt-5 text-center min-h-[3.5rem] flex items-center justify-center">
+                <button onclick="checkDragDrop()" class="btn btn-mint py-3 px-8 text-lg hidden" id="btn-check-dd">
+                    Kontrol Et <i class="fa-solid fa-check-double"></i>
+                </button>
+                <div id="dd-feedback" class="font-black text-sm hidden"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- 2. AŞAMA: SOHBET                           -->
+    <!-- ========================================== -->
+    <div id="screen-chat" class="screen">
+        <div class="panel w-full max-w-2xl mx-auto flex flex-col overflow-hidden" style="height: calc(100vh - 8rem); height: calc(100dvh - 8rem); min-height: 460px; max-height: 780px;">
+
+            <div class="px-4 py-3 flex items-center justify-between shrink-0 text-white" style="background: var(--turq); border-bottom: 3px solid var(--ink);">
+                <div class="flex items-center gap-3">
+                    <i class="fa-brands fa-whatsapp text-3xl"></i>
+                    <div>
+                        <p class="font-display text-lg leading-tight flex items-center gap-2">
+                            Sohbet Ekranı <i class="fa-solid fa-volume-high speaker-btn spk spk-sm" onclick="playAudio('yonerge2.mp3', event)"></i>
+                        </p>
+                        <p class="text-[11px] font-bold opacity-95">Arkadaşına en uygun cevabı sağdaki seçeneklerden bul.</p>
+                    </div>
+                </div>
+                <div class="text-xs font-black px-3 py-1.5 rounded-full shrink-0" style="background:#fff; color:var(--ink); border:2.5px solid var(--ink);">
+                    Soru: <span id="chat-q-num">1</span> / 12
+                </div>
+            </div>
+            <div class="h-2.5 shrink-0" style="background:#CFEFF4; border-bottom:3px solid var(--ink);"><div id="chat-progress" class="h-full" style="width:0%; background:var(--sun); transition: width .5s;"></div></div>
+
+            <div class="px-4 py-2 flex items-center gap-3 shrink-0 bg-white" style="border-bottom:3px solid var(--ink);">
+                <img src="tanisma.png" alt="Profil" class="w-11 h-11 rounded-full object-cover bg-white" style="border:3px solid var(--ink);">
+                <div class="leading-tight">
+                    <h3 class="font-display text-base">Yeni Arkadaşım</h3>
+                    <p class="text-[11px] font-black" style="color:#0E9A67"><i class="fa-solid fa-circle text-[8px] mr-1"></i> Çevrimiçi</p>
+                </div>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-4 chat-bg space-y-4 flex flex-col" id="chat-messages">
+                <div id="typing-indicator" class="flex items-end gap-2 max-w-[85%] mt-2 hidden">
+                    <div class="bubble-left px-4 py-3 flex items-center gap-1.5">
+                        <span class="text-[11px] font-black mr-1 opacity-60">Yazıyor</span>
+                        <div class="w-2 h-2 rounded-full typing-dot" style="background:var(--turq)"></div>
+                        <div class="w-2 h-2 rounded-full typing-dot" style="background:var(--turq)"></div>
+                        <div class="w-2 h-2 rounded-full typing-dot" style="background:var(--turq)"></div>
+                    </div>
+                </div>
+
+                <div id="question-bubble-wrap" class="flex items-end gap-2 max-w-[88%] mt-2 hidden">
+                    <div class="bubble-left p-3 relative min-w-[190px]">
+                        <div class="flex items-center justify-between gap-3">
+                            <p id="chat-question" class="font-black text-base"></p>
+                            <i id="q-speaker" class="fa-solid fa-volume-high speaker-btn spk spk-sm"></i>
+                        </div>
+                        <div class="text-right mt-0.5"><span class="text-[10px] font-bold opacity-50">Şimdi</span></div>
+                    </div>
+                </div>
+
+                <div class="flex flex-col items-end gap-2.5 mt-2 w-full" id="chat-options"></div>
+            </div>
+
+            <div id="chat-feedback" class="p-3 text-center text-sm font-black opacity-0 transition-opacity bg-white min-h-[56px] flex items-center justify-center shrink-0" style="border-top:3px solid var(--ink);"></div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- 3. AŞAMA: ÇALIŞANLARA SELAM                -->
+    <!-- ========================================== -->
+    <div id="screen-worker" class="screen">
+        <div class="panel w-full max-w-4xl mx-auto p-4 sm:p-7">
+
+            <!-- Önce bilgi kutusu -->
+            <div id="worker-info">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0" style="background:var(--sun); border:3px solid var(--ink); box-shadow:0 3px 0 var(--ink);">
+                        <i class="fa-solid fa-lightbulb text-xl"></i>
+                    </div>
+                    <h2 class="font-display text-2xl sm:text-3xl flex items-center gap-3">
+                        Çalışanlara Nasıl Selam Verilir? <i class="fa-solid fa-volume-high speaker-btn spk" onclick="playAudio('selamaciklama.mp3', event)"></i>
+                    </h2>
+                </div>
+                <p class="text-sm sm:text-base font-bold mb-4 opacity-80">Türkçede çalışan birine seslenirken işine ve bulunduğumuz ortama göre farklı güzel sözler söyleriz. Önce dört dileği tanıyalım. Hoparlöre basarak nasıl söylendiğini dinleyebilirsin.</p>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="info-card" style="background:#FFF1BF;">
+                        <div class="info-icon">🙌</div>
+                        <div>
+                            <p class="font-display text-xl flex items-center gap-2">Eline sağlık <i class="fa-solid fa-volume-high speaker-btn spk spk-sm" onclick="playAudio('elinesaglik1.mp3', event)"></i></p>
+                            <p class="text-sm font-bold mt-1 opacity-85">Emek verip bir şey hazırlayan ya da ortaya çıkaran kişiye teşekkür etmek ve emeğini beğendiğimizi söylemek için kullanırız.</p>
+                        </div>
+                    </div>
+                    <div class="info-card" style="background:#C9F3E0;">
+                        <div class="info-icon">🌟</div>
+                        <div>
+                            <p class="font-display text-xl flex items-center gap-2">Kolay gelsin <i class="fa-solid fa-volume-high speaker-btn spk spk-sm" onclick="playAudio('kolaygelsin1.mp3', event)"></i></p>
+                            <p class="text-sm font-bold mt-1 opacity-85">Hangi işi yaparsa yapsın, çalışırken gördüğümüz herkese söyleyebileceğimiz en yaygın ve sıcak dilektir.</p>
+                        </div>
+                    </div>
+                    <div class="info-card" style="background:#FFD9CC;">
+                        <div class="info-icon">💪</div>
+                        <div>
+                            <p class="font-display text-xl flex items-center gap-2">Allah kolaylık versin <i class="fa-solid fa-volume-high speaker-btn spk spk-sm" onclick="playAudio('allahkolaylikversin1.mp3', event)"></i></p>
+                            <p class="text-sm font-bold mt-1 opacity-85">Çok yorucu, zahmetli ve güç isteyen bir işle uğraşan kişiye içtenlikle edilen bir duadır.</p>
+                        </div>
+                    </div>
+                    <div class="info-card" style="background:#E3DBFF;">
+                        <div class="info-icon">💼</div>
+                        <div>
+                            <p class="font-display text-xl flex items-center gap-2">İyi çalışmalar <i class="fa-solid fa-volume-high speaker-btn spk spk-sm" onclick="playAudio('iyicalismalar1.mp3', event)"></i></p>
+                            <p class="text-sm font-bold mt-1 opacity-85">Daha resmî ve ciddi ortamlarda, çalışan birine saygıyla söylenen nazik bir dilektir.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-6">
+                    <button onclick="startWorkerRound()" class="btn btn-tulip py-3.5 px-9 text-xl">Anladım, Başlayalım! <i class="fa-solid fa-arrow-right"></i></button>
+                </div>
+            </div>
+
+            <!-- Sonra çalışanlar -->
+            <div id="worker-main" class="hidden">
+                <div class="flex justify-between items-center mb-4 gap-3">
+                    <h2 class="font-display text-2xl sm:text-3xl flex items-center gap-3">
+                        Çalışana Selam Verelim <i class="fa-solid fa-volume-high speaker-btn spk" onclick="playAudio('yonerge3.mp3', event)"></i>
+                    </h2>
+                    <span class="font-display text-base px-4 py-1 rounded-full shrink-0" style="background:var(--sun); border:3px solid var(--ink); box-shadow:0 3px 0 var(--ink);" id="worker-counter">1/4</span>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                    <!-- Çalışan profili -->
+                    <div class="flex flex-col gap-4">
+                        <div class="relative overflow-hidden" style="border:3px solid var(--ink); border-radius:22px; box-shadow:4px 4px 0 var(--ink); height: clamp(210px, 34vh, 330px); background: linear-gradient(135deg,#BFEFF5,#FFE9B0);">
+                            <img id="worker-img" src="" alt="Çalışan" class="w-full h-full object-cover">
+                            <div class="absolute bottom-3 left-3 font-display text-base px-3 py-1 rounded-full" style="background:#fff; border:2.5px solid var(--ink); box-shadow:0 3px 0 var(--ink);" id="worker-role-badge"></div>
+                        </div>
+                        <div class="flex items-start gap-3 p-3" style="background:#FFF8DC; border:3px solid var(--ink); border-radius:20px; box-shadow:3px 3px 0 var(--ink);">
+                            <button id="worker-audio-btn" class="spk" style="width:40px;height:40px;"><i class="fa-solid fa-play"></i></button>
+                            <p id="worker-story" class="text-sm sm:text-base font-bold leading-snug italic"></p>
+                        </div>
+                    </div>
+
+                    <!-- Kontroller -->
+                    <div class="flex flex-col gap-4">
+                        <div class="p-4" style="border:3px solid var(--ink); border-radius:20px; box-shadow:3px 3px 0 var(--ink);">
+                            <div class="flex justify-between text-sm font-black mb-2">
+                                <span><i class="fa-solid fa-battery-half mr-1"></i> Çalışanın Morali</span>
+                                <span id="morale-text" class="t-low">%30 - Çok Yorgun</span>
+                            </div>
+                            <div class="morale-track"><div id="morale-bar" data-level="low" style="width:30%"></div></div>
+                        </div>
+
+                        <div class="space-y-3" id="worker-options"></div>
+
+                        <div id="worker-feedback" class="text-center text-sm font-black hidden px-4 py-3 bg-white" style="border:3px solid var(--ink); border-radius:16px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- SERTİFİKA                                  -->
+    <!-- ========================================== -->
+    <div id="screen-certificate" class="screen">
+        <div class="w-full max-w-3xl mx-auto flex flex-col items-center">
+
+            <div id="certificate-node" class="w-full text-center relative" style="background:#fff; border:8px solid #1B2559; border-radius:24px; overflow:hidden;">
+                <div style="display:flex; height:16px;">
+                    <div style="flex:1; background:#FFC531"></div><div style="flex:1; background:#12A8BC"></div><div style="flex:1; background:#F0443A"></div><div style="flex:1; background:#7B4DFF"></div>
+                </div>
+                <div class="p-6 sm:p-10">
+                    <div class="w-20 h-20 mx-auto rounded-full flex items-center justify-center mb-4" style="background:#FFC531; border:4px solid #1B2559;">
+                        <i class="fa-solid fa-award text-4xl" style="color:#1B2559"></i>
+                    </div>
+
+                    <h1 class="font-display text-3xl sm:text-5xl mb-5" style="color:#1B2559;">Türkçe Kahramanı Sertifikası</h1>
+                    <p class="text-sm sm:text-lg font-bold mb-3" style="color:#1B2559;">Bu sertifika,</p>
+                    <h2 id="cert-name" class="font-display text-3xl sm:text-4xl mb-5 inline-block px-4 pb-1" style="color:#F0443A; border-bottom:5px solid #FFC531;">Öğrenci Adı</h2>
+                    <p class="text-sm sm:text-base font-bold leading-relaxed max-w-xl mx-auto" style="color:#1B2559;">
+                        Oyununu başarıyla tamamlayarak Türk kültürünün güzel sözlerini, selamlama kurallarını en iyi şekilde öğrendiğini ve bir <b>"Dil Dedektifi"</b> unvanını hak ettiğini belgelendirmek amacıyla verilmiştir.
+                    </p>
+
+                    <div class="mt-8 flex justify-between items-end pt-5" style="border-top:3px dashed rgba(27,37,89,.25);">
+                        <div class="text-left">
+                            <p class="text-xs font-black" style="color:#1B2559; opacity:.6;">Tarih</p>
+                            <p class="text-base font-black" style="color:#1B2559;" id="cert-date">10.10.2023</p>
+                        </div>
+                        <p class="text-sm sm:text-base font-black" style="color:#1B2559;">TÜRKÇE VE TÜRK KÜLTÜRÜ DERSİ</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-7 flex gap-4 w-full max-w-md">
+                <button onclick="downloadCertificate()" class="btn btn-mint flex-1 py-3.5 text-lg"><i class="fa-solid fa-download"></i> Sertifikayı İndir</button>
+                <button onclick="location.reload()" class="btn btn-white flex-1 py-3.5 text-lg"><i class="fa-solid fa-rotate-right"></i> Baştan Oyna</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        const $ = id => document.getElementById(id);
+
+        // ---------- Yardımcılar ----------
+        function shuffle(a) {
+            const arr = [...a];
+            for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; }
+            return arr;
+        }
+        function balancedPositions(n, k) {
+            for (let t = 0; t < 500; t++) {
+                const arr = shuffle(Array.from({ length: n }, (_, i) => i % k));
+                let ok = true;
+                for (let i = 2; i < n; i++) { if (arr[i] === arr[i - 1] && arr[i] === arr[i - 2]) { ok = false; break; } }
+                if (ok) return arr;
+            }
+            return Array.from({ length: n }, (_, i) => i % k);
+        }
+        function placeOptions(opts, isCorrect, pos) {
+            const correct = opts.find(isCorrect);
+            const others = shuffle(opts.filter(o => o !== correct));
+            const out = []; let w = 0;
+            for (let i = 0; i < opts.length; i++) out.push(i === pos ? correct : others[w++]);
+            return out;
+        }
+
+        // ---------- SES YÖNETİMİ ----------
+        const audioCache = {};
+        let currentVoice = null;
+
+        function playAudio(filename, event) {
+            if (event) {
+                event.stopPropagation();
+                const t = event.currentTarget || event.target;
+                if (t && t.classList) { t.classList.add('playing'); setTimeout(() => t.classList.remove('playing'), 1000); }
+            }
+            if (!audioCache[filename]) audioCache[filename] = new Audio(filename);
+            const a = audioCache[filename];
+            if (currentVoice && currentVoice !== a) currentVoice.pause();
+            currentVoice = a;
+            a.currentTime = 0;
+            a.play().catch(() => console.log("Ses oynatımı engellendi:", filename));
+        }
+
+        let actx = null;
+        function audioCtx() {
+            try {
+                if (!actx) { const C = window.AudioContext || window.webkitAudioContext; if (C) actx = new C(); }
+                if (actx && actx.state === 'suspended') actx.resume();
+            } catch (e) {}
+            return actx;
+        }
+        function tone(f1, f2, dur, type, vol) {
+            const c = audioCtx(); if (!c) return;
+            const t = c.currentTime, o = c.createOscillator(), g = c.createGain();
+            o.type = type;
+            o.frequency.setValueAtTime(f1, t);
+            o.frequency.exponentialRampToValueAtTime(f2, t + dur * 0.8);
+            g.gain.setValueAtTime(0.0001, t);
+            g.gain.exponentialRampToValueAtTime(vol, t + 0.006);
+            g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+            o.connect(g); g.connect(c.destination);
+            o.start(t); o.stop(t + dur + 0.02);
+        }
+
+        function playSoundEffect(type) {
+            if (type === 'click') { tone(1100, 520, 0.08, 'triangle', 0.22); return; }
+            if (type === 'pop') { tone(500, 900, 0.12, 'sine', 0.2); return; }
+            const map = { tik: 'audio-tik', alkis: 'audio-alkis', dong: 'audio-dong' };
+            const a = $(map[type]);
+            if (a) { a.currentTime = 0; a.play().catch(() => {}); }
+        }
+
+        document.addEventListener('pointerdown', e => {
+            const t = e.target.closest('button, a, .chip, .dropzone, .chat-opt, .worker-opt');
+            if (!t || t.disabled || e.target.closest('.speaker-btn') || e.target.closest('#worker-audio-btn')) return;
+            playSoundEffect('click');
+        });
+
+        function triggerConfetti() { confetti({ particleCount: 150, spread: 80, origin: { y: 0.55 }, colors: ['#12A8BC', '#7B4DFF', '#2DCB8F', '#FFC531', '#F0443A'] }); }
+
+        function updateStage(num) {
+            $('stage-indicator').textContent = `Aşama: ${num} / 3`;
+            document.querySelectorAll('#stage-dots i').forEach((d, i) => d.classList.toggle('on', i < num));
+        }
+
+        let playerName = "";
+
+        function startAdventure() {
+            const name = $('input-name').value.trim();
+            const surname = $('input-surname').value.trim();
+            if (!name || !surname) { $('intro-error').classList.remove('hidden'); return; }
+            $('intro-error').classList.add('hidden');
+            playerName = name + " " + surname;
+            nextScreen('screen-drag-drop');
+        }
+
+        function nextScreen(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            $(id).classList.add('active');
+            window.scrollTo(0, 0);
+            if (id === 'screen-drag-drop') { updateStage(1); initDragDrop(); }
+            if (id === 'screen-chat') { updateStage(2); initChat(); }
+            if (id === 'screen-worker') { updateStage(3); initWorker(); }
+            if (id === 'screen-certificate') { finishGame(); }
+        }
+
+        // ---------- 1. AŞAMA: SÜRÜKLE BIRAK ----------
+        const ddData = [
+            { box: 1, title: "Sabah", img: "gunaydin.png", emoji: "🌅", bg: "#FFD966", tint: "#FFF7DA", words: [{t:"Günaydın", a:"gunaydin.mp3"}, {t:"Hayırlı sabahlar", a:"hayirlisabahlar.mp3"}] },
+            { box: 2, title: "Öğle", img: "tunaydin.png", emoji: "☀️", bg: "#7FD6F0", tint: "#E4F7FD", words: [{t:"İyi günler", a:"iyigunler.mp3"}, {t:"Hayırlı günler", a:"hayirligunler.mp3"}, {t:"Tünaydın", a:"tunaydin.mp3"}, {t:"Gününüz güzel geçsin", a:"gununuzguzelgecsin.mp3"}] },
+            { box: 3, title: "Akşam", img: "iyiaksamlar.png", emoji: "🌇", bg: "#FF9E7A", tint: "#FFE9E0", words: [{t:"İyi akşamlar", a:"iyiaksamlar.mp3"}, {t:"Hayırlı akşamlar", a:"hayirliaksamlar.mp3"}] },
+            { box: 4, title: "Gece", img: "iyigeceler.png", emoji: "🌙", bg: "#8C7CFF", tint: "#ECE8FF", words: [{t:"Tatlı rüyalar", a:"tatliruyalar.mp3"}, {t:"İyi geceler", a:"iyigeceler.mp3"}, {t:"Hayırlı geceler", a:"hayirligeceler.mp3"}, {t:"Allah rahatlık versin", a:"allahrahatlikversin.mp3"}] }
+        ];
+
+        let draggedEl = null, selectedMobileEl = null, ddBusy = false;
+
+        function initDragDrop() {
+            const pool = $('words-pool'), container = $('dropzones-container');
+            pool.innerHTML = ''; container.innerHTML = '';
+            selectedMobileEl = null; ddBusy = false;
+            $('btn-check-dd').classList.add('hidden');
+            $('dd-feedback').classList.add('hidden');
+
+            let items = [];
+            ddData.forEach(d => { items = items.concat(d.words.map(w => ({ ...w, target: d.box }))); });
+
+            shuffle(items).forEach(item => {
+                const el = document.createElement('div');
+                el.className = 'chip draggable select-none';
+                el.draggable = true; el.dataset.target = item.target;
+                el.innerHTML = `<span>${item.t}</span> <i class="fa-solid fa-volume-high speaker-btn spk spk-sm" onclick="playAudio('${item.a}', event)"></i>`;
+
+                el.addEventListener('dragstart', () => { draggedEl = el; setTimeout(() => el.classList.add('dragging'), 0); });
+                el.addEventListener('dragend', () => { draggedEl = null; el.classList.remove('dragging'); checkDDCompletion(); });
+                el.addEventListener('click', (e) => { e.stopPropagation(); if (!e.target.classList.contains('speaker-btn')) handleMobileSelection(el); });
+                pool.appendChild(el);
+            });
+
+            ddData.forEach(d => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'time-card';
+                wrapper.innerHTML = `
+                    <div class="time-img" style="background:${d.bg}">
+                        <span aria-hidden="true">${d.emoji}</span>
+                        <img src="${d.img}" alt="${d.title}" onerror="this.style.display='none'">
+                        <div class="time-tag">${d.title}</div>
+                    </div>
+                    <div class="dropzone" data-box-id="${d.box}" style="background:${d.tint}">
+                        <div class="dropped-items"></div>
+                    </div>`;
+                const zone = wrapper.querySelector('.dropzone');
+                zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
+                zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+                zone.addEventListener('drop', e => {
+                    e.preventDefault(); zone.classList.remove('dragover');
+                    if (draggedEl) { zone.querySelector('.dropped-items').appendChild(draggedEl); playSoundEffect('pop'); }
+                });
+                zone.addEventListener('click', () => handleMobileDrop(zone));
+                container.appendChild(wrapper);
+            });
+        }
+
+        function handleMobileSelection(el) {
+            if (el.parentElement.id === 'words-pool') {
+                const wasSelected = el.classList.contains('selected');
+                document.querySelectorAll('.chip').forEach(d => d.classList.remove('selected'));
+                if (wasSelected) { selectedMobileEl = null; }
+                else { selectedMobileEl = el; el.classList.add('selected'); }
+            } else {
+                $('words-pool').appendChild(el); checkDDCompletion();
+            }
+        }
+        function handleMobileDrop(zone) {
+            if (selectedMobileEl) {
+                selectedMobileEl.classList.remove('selected');
+                zone.querySelector('.dropped-items').appendChild(selectedMobileEl);
+                selectedMobileEl = null; playSoundEffect('pop'); checkDDCompletion();
+            }
+        }
+        function checkDDCompletion() {
+            $('btn-check-dd').classList.toggle('hidden', $('words-pool').children.length !== 0 || ddBusy);
+        }
+
+        function checkDragDrop() {
+            if (ddBusy) return;
+            ddBusy = true;
+            $('btn-check-dd').classList.add('hidden');
+            let allCorrect = true;
+            document.querySelectorAll('.dropzone').forEach(zone => {
+                let isCorrect = true; const items = zone.querySelectorAll('.draggable');
+                if (items.length === 0) isCorrect = false;
+                items.forEach(item => { if (item.dataset.target !== zone.dataset.boxId) isCorrect = false; });
+                zone.classList.toggle('success', isCorrect); zone.classList.toggle('error', !isCorrect);
+                if (!isCorrect) allCorrect = false;
+            });
+
+            const fb = $('dd-feedback'); fb.classList.remove('hidden');
+            if (allCorrect) {
+                fb.innerHTML = '<span class="inline-block px-5 py-2 text-base" style="background:#BFF3D9; border:3px solid var(--ink); border-radius:16px; box-shadow:0 3px 0 var(--ink);"><i class="fa-solid fa-check"></i> Harika! Doğru yerleştirdin!</span>';
+                playSoundEffect('alkis'); triggerConfetti();
+                setTimeout(() => nextScreen('screen-chat'), 3500);
+            } else {
+                fb.innerHTML = '<span class="inline-block px-5 py-2" style="background:#FFCFCA; border:3px solid var(--ink); border-radius:16px; box-shadow:0 3px 0 var(--ink);"><i class="fa-solid fa-xmark"></i> Kırmızı kutulardakileri havuza döndürüyorum, tekrar dene.</span>';
+                playSoundEffect('dong');
+                setTimeout(() => {
+                    document.querySelectorAll('.dropzone.error .draggable').forEach(item => {
+                        if (item.dataset.target !== item.closest('.dropzone').dataset.boxId) $('words-pool').appendChild(item);
+                    });
+                    document.querySelectorAll('.dropzone').forEach(z => z.classList.remove('error', 'success'));
+                    ddBusy = false; checkDDCompletion(); fb.classList.add('hidden');
+                }, 3000);
+            }
+        }
+
+        // ---------- 2. AŞAMA: SOHBET ----------
+        const chatQuestions = [
+            {q: "Merhaba!", qa: "merhaba.mp3", opts: [{t:"Merhaba, nasılsın?", a:"merhabanasilsin.mp3", c:true}, {t:"Görüşürüz.", a:"gorusuruz.mp3", c:false}, {t:"Saat beş.", a:"saatbes.mp3", c:false}]},
+            {q: "Nasılsın?", qa: "nasilsin.mp3", opts: [{t:"Teşekkürler, iyiyim.", a:"tesekkurleriyiyim.mp3", c:true}, {t:"Evdeyim.", a:"evdeyim.mp3", c:false}, {t:"Kırmızı.", a:"kirmizi.mp3", c:false}]},
+            {q: "Senin adın ne?", qa: "seninadinne.mp3", opts: [{t:"Benim adım Elif.", a:"benimadimelif.mp3", c:true}, {t:"Okula gidiyorum.", a:"okulagidiyorum.mp3", c:false}, {t:"İyi günler.", a:"iyigunler.mp3", c:false}]},
+            {q: "Tanıştığıma memnun oldum.", qa: "tanistigimamemnunoldum.mp3", opts: [{t:"Ben de memnun oldum.", a:"bandememnunoldum.mp3", c:true}, {t:"Kitap okumayı severim.", a:"kitapokumayiseverim.mp3", c:false}, {t:"Dün geldim.", a:"dungeldim.mp3", c:false}]},
+            {q: "Kaç yaşındasın?", qa: "kacyasindasin.mp3", opts: [{t:"On yaşındayım.", a:"onyasindayim.mp3", c:true}, {t:"Ankara'da.", a:"ankarada.mp3", c:false}, {t:"Elma severim.", a:"elmaseverim.mp3", c:false}]},
+            {q: "Nerelisin?", qa: "nerelisin.mp3", opts: [{t:"Ben İzmirliyim.", a:"benizmirliyim.mp3", c:true}, {t:"Yarın salı.", a:"yarinsali.mp3", c:false}, {t:"Kedi.", a:"kedi.mp3", c:false}]},
+            {q: "Kardeşin var mı?", qa: "kardesinvarmi.mp3", opts: [{t:"Evet, bir ablam var.", a:"evetbirablamvar.mp3", c:true}, {t:"Futbol oynamayı.", a:"futboloynamayi.mp3", c:false}, {t:"Mavi rengi severim.", a:"mavirengiseverim.mp3", c:false}]},
+            {q: "En sevdiğin renk ne?", qa: "ensevdiginrenkne.mp3", opts: [{t:"Yeşil rengi çok severim.", a:"yesilrengicokseverim.mp3", c:true}, {t:"Hayır, yok.", a:"hayiryok.mp3", c:false}, {t:"Adım Mehmet.", a:"adimmehmet.mp3", c:false}]},
+            {q: "Hangi sporu seversin?", qa: "hangisporudahaseversin.mp3", opts: [{t:"Yüzmeyi ve futbolu severim.", a:"yuzmeyivefutboluseverim.mp3", c:true}, {t:"Bugün hava güneşli.", a:"bugunhavagunesli.mp3", c:false}, {t:"Benim kalemim bu.", a:"benimkalemimbu.mp3", c:false}]},
+            {q: "Bugün nasıl hissediyorsun?", qa: "bugunnasilhissediyorsun.mp3", opts: [{t:"Harika ve enerjik hissediyorum!", a:"harikaveenerjikhissediyorum.mp3", c:true}, {t:"Memnun oldum.", a:"memnunoldum.mp3", c:false}, {t:"Türkiye.", a:"turkiye.mp3", c:false}]},
+            {q: "İyi günler.", qa: "iyigunler.mp3", opts: [{t:"Sana da iyi günler.", a:"sanadaiyigunler.mp3", c:true}, {t:"İyiyim, sen?", a:"iyiyimsen.mp3", c:false}, {t:"Sekiz yaşındayım.", a:"sekizyasindayim.mp3", c:false}]},
+            {q: "Hoşça kal!", qa: "hoscakal.mp3", opts: [{t:"Görüşmek üzere, güle güle.", a:"gorusmekuzeregulegule.mp3", c:true}, {t:"Teşekkürler, iyiyim.", a:"tesekkurleriyiyim.mp3", c:false}, {t:"Benim adım Ayşe.", a:"benimadimayse.mp3", c:false}]}
+        ];
+
+        let cIdx = 0, chatPositions = [];
+
+        function initChat() {
+            cIdx = 0;
+            chatPositions = balancedPositions(chatQuestions.length, 3);
+            $('chat-progress').style.width = '0%';
+            loadChat();
+        }
+
+        function loadChat() {
+            if (cIdx >= chatQuestions.length) {
+                $('chat-progress').style.width = '100%';
+                triggerConfetti();
+                playSoundEffect('alkis');
+                setTimeout(() => nextScreen('screen-worker'), 3000);
+                return;
+            }
+
+            $('chat-q-num').textContent = cIdx + 1;
+            $('chat-progress').style.width = (cIdx / chatQuestions.length * 100) + '%';
+            const typing = $('typing-indicator'), qWrap = $('question-bubble-wrap'), optsContainer =$('chat-options');
+
+            optsContainer.innerHTML = '';
+            qWrap.classList.add('hidden');
+            typing.classList.remove('hidden');
+            $('chat-feedback').style.opacity = 0;
+
+            const tusAudio = $('audio-tus');
+            tusAudio.currentTime = 0;
+            tusAudio.play().catch(() => {});
+
+            setTimeout(() => {
+                tusAudio.pause();
+                typing.classList.add('hidden');
+                qWrap.classList.remove('hidden');
+                playSoundEffect('pop');
+
+                const data = chatQuestions[cIdx];
+                $('chat-question').textContent = data.q;
+                $('q-speaker').onclick = (e) => playAudio(data.qa, e);
+
+                placeOptions(data.opts, o => o.c, chatPositions[cIdx]).forEach(opt => {
+                    const btn = document.createElement('div');
+                    btn.className = 'chat-opt';
+                    btn.innerHTML = `<i class="fa-solid fa-volume-high speaker-btn spk spk-sm" onclick="playAudio('${opt.a}', event)"></i> <span class="flex-1 text-right">${opt.t}</span>`;
+                    btn.onclick = (e) => { if (!e.target.classList.contains('speaker-btn')) handleChatAnswer(btn, opt.c); };
+                    optsContainer.appendChild(btn);
+                });
+                const box = $('chat-messages'); box.scrollTop = box.scrollHeight;
+            }, 1800);
+        }
+
+        function handleChatAnswer(btn, isCorrect) {
+            const fb = $('chat-feedback');
+            document.querySelectorAll('#chat-options .chat-opt').forEach(b => { b.style.pointerEvents = 'none'; b.classList.add('dim'); });
+            btn.classList.remove('dim');
+
+            if (isCorrect) {
+                btn.classList.add('correct');
+                fb.innerHTML = '<span class="px-4 py-1.5" style="background:#BFF3D9; border:2.5px solid var(--ink); border-radius:14px;"><i class="fa-solid fa-circle-check"></i> Doğru! Çok naziksin.</span>';
+                fb.style.opacity = 1; playSoundEffect('tik');
+                $('chat-progress').style.width = ((cIdx + 1) / chatQuestions.length * 100) + '%';
+                setTimeout(() => { cIdx++; loadChat(); }, 2000);
+            } else {
+                btn.classList.add('wrong');
+                fb.innerHTML = '<span class="px-4 py-1.5" style="background:#FFCFCA; border:2.5px solid var(--ink); border-radius:14px;"><i class="fa-solid fa-circle-xmark"></i> Yanlış cevap. Tekrar dene!</span>';
+                fb.style.opacity = 1; playSoundEffect('dong');
+                setTimeout(() => {
+                    document.querySelectorAll('#chat-options .chat-opt').forEach(b => {
+                        b.style.pointerEvents = 'auto'; b.classList.remove('dim', 'wrong');
+                    });
+                    fb.style.opacity = 0;
+                }, 1500);
+            }
+        }
+
+        // ---------- 3. AŞAMA: ÇALIŞAN MORALİ ----------
+        const workerData = [
+            { img: "firinci.png", audio: "firinci.mp3", role: "Hasan Usta (Fırıncı)", story: "Off şu sabah ayazında bile fırının sıcağı insanın içini ısıtıyor ama bir yandan da derman bırakmıyor evlat... Hoş geldin!", options: [{t:"Eline sağlık", a:"elinesaglik.mp3", v:100, msg:"Harika! Pişirdiği ekmeklere hürmet ettin.", level:"high"}, {t:"Kolay gelsin", a:"kolaygelsin.mp3", v:75, msg:"Güzel bir genel selam, yüzünü güldürdü.", level:"mid"}, {t:"Allah kolaylık versin", a:"allahkolaylikversin.mp3", v:85, msg:"Samimi bir dua, yorgunluğunu aldı.", level:"high"}, {t:"İyi çalışmalar", a:"iyicalismalar.mp3", v:65, msg:"Nazik bir dilek oldu.", level:"mid"}] },
+            { img: "hilti.png", audio: "hilti.mp3", role: "Ahmet Usta (İnşaat)", story: "Tüm gün şu matkabın sesi başımı şişiriyor, kollarım uyuştu vallahi. Ne vardı gençler?", options: [{t:"Allah kolaylık versin", a:"allahkolaylikversin.mp3", v:100, msg:"Çok içten! Ağır işine büyük moral oldu.", level:"high"}, {t:"Eline sağlık", a:"elinesaglik.mp3", v:70, msg:"Emeğe saygı duyması hoşuna gitti.", level:"mid"}, {t:"Kolay gelsin", a:"kolaygelsin.mp3", v:80, msg:"Klasik ve sıcak bir dilek.", level:"high"}, {t:"İyi çalışmalar", a:"iyicalismalar.mp3", v:65, msg:"Teşekkür etti, moral buldu.", level:"mid"}] },
+            { img: "ofis.png", audio: "ofis.mp3", role: "Zeynep Hanım (Ofis)", story: "Bu raporları yarına yetiştirmem lazım, gözlerim ekrana bakmaktan yoruldu. Buyrun?", options: [{t:"İyi çalışmalar", a:"iyicalismalar.mp3", v:100, msg:"Tam ofis ortamına uygun, profesyonel nezaket.", level:"high"}, {t:"Kolay gelsin", a:"kolaygelsin.mp3", v:85, msg:"Sıcak ve samimi, hoşuna gitti.", level:"high"}, {t:"Eline sağlık", a:"elinesaglik.mp3", v:65, msg:"Hazırladığı raporlar için güzel bir tebrik.", level:"mid"}, {t:"Allah kolaylık versin", a:"allahkolaylikversin.mp3", v:75, msg:"İçten desteğinle mutlu oldu.", level:"mid"}] },
+            { img: "genel.png", audio: "genel.mp3", role: "Mehmet Amca (Temizlikçi)", story: "Sokağı süpürmek de zor iş, rüzgar esince çöpler hep dağılıyor. Merhaba çocuklar.", options: [{t:"Kolay gelsin", a:"kolaygelsin.mp3", v:100, msg:"En yaygın ve iç ısıtan standart nezaketimiz!", level:"high"}, {t:"İyi çalışmalar", a:"iyicalismalar.mp3", v:70, msg:"Nezaketine teşekkür etti.", level:"mid"}, {t:"Eline sağlık", a:"elinesaglik.mp3", v:80, msg:"Sokağı temizlediği için minnet göstergesi, güzel.", level:"high"}, {t:"Allah kolaylık versin", a:"allahkolaylikversin.mp3", v:90, msg:"Yorucu işi için çok güzel bir dua.", level:"high"}] }
+        ];
+
+        let wIndex = 0, workerPositions = [];
+
+        function initWorker() {
+            wIndex = 0;
+            workerPositions = shuffle([0, 1, 2, 3]);
+            $('worker-info').classList.remove('hidden');$('worker-main').classList.add('hidden');
+        }
+
+        function startWorkerRound() {
+            $('worker-info').classList.add('hidden');$('worker-main').classList.remove('hidden');
+            loadWorker();
+        }
+
+        function setMorale(v, label, level) {
+            const bar = $('morale-bar'), text =$('morale-text');
+            bar.style.width = v + '%'; bar.dataset.level = level;
+            text.textContent = label; text.className = 't-' + level;
+        }
+
+        function loadWorker() {
+            if (wIndex >= workerData.length) { nextScreen('screen-certificate'); return; }
+
+            const data = workerData[wIndex];
+            $('worker-counter').textContent = (wIndex + 1) + "/4";
+            $('worker-img').src = data.img;
+            $('worker-role-badge').textContent = data.role;
+            $('worker-story').textContent = `"${data.story}"`;
+            $('worker-audio-btn').onclick = (e) => playAudio(data.audio, e);
+            setMorale(30, '%30 - Çok Yorgun', 'low');
+
+            const optsDiv = $('worker-options');
+            optsDiv.innerHTML = '';
+            placeOptions(data.options, o => o.v === 100, workerPositions[wIndex]).forEach(opt => {
+                const btn = document.createElement('div');
+                btn.className = 'worker-opt';
+                btn.innerHTML = `<div class="flex items-center gap-2.5"><i class="fa-solid fa-volume-high speaker-btn spk spk-sm" onclick="playAudio('${opt.a}', event)"></i> <span>“${opt.t}!”</span></div> <i class="fa-solid fa-chevron-right opacity-40"></i>`;
+                btn.onclick = (e) => { if (!e.target.classList.contains('speaker-btn')) handleWorkerAnswer(opt, btn); };
+                optsDiv.appendChild(btn);
+            });
+            $('worker-feedback').classList.add('hidden');
+        }
+
+        function handleWorkerAnswer(opt, btn) {
+            const fb = $('worker-feedback');
+            document.querySelectorAll('#worker-options .worker-opt').forEach(b => { b.style.pointerEvents = 'none'; b.classList.add('dim'); });
+            btn.classList.remove('dim');
+
+            setMorale(opt.v, `%${opt.v} - ${opt.level === 'high' ? 'Çok Mutlu!' : 'Canlandı'}`, opt.level);
+            playSoundEffect('tik');
+            if (opt.v >= 90) triggerConfetti();
+            
+            btn.classList.add('good');
+
+            fb.classList.remove('hidden');
+            fb.innerHTML = `<span style="color:${opt.level === 'high' ? '#0E9A67' : '#8A6A00'}">${opt.msg}</span>`;
+
+            setTimeout(() => { wIndex++; loadWorker(); }, 3500);
+        }
+
+        // ---------- SERTİFİKA (KESİN JPG İNDİRME) ----------
+        function finishGame() {
+            $('stage-badge-container').style.display = 'none';
+            playSoundEffect('alkis');
+            triggerConfetti();
+            $('cert-name').textContent = playerName;
+            $('cert-date').textContent = new Date().toLocaleDateString('tr-TR');
+        }
+
+        async function downloadCertificate() {
+            const node = $('certificate-node');
+            const safeName = playerName.replace(/[\\/:*?"<>|]/g, '').trim().replace(/\s+/g, '_');
+            const fileName = `Turkce_Kahramani_${safeName || 'Ogrenci'}.jpg`;
+
+            try {
+                if (typeof html2canvas !== 'function') throw new Error('Sertifika oluşturma kütüphanesi yüklenemedi. İnternet bağlantını kontrol edip tekrar dene.');
+                if (document.fonts && document.fonts.ready) await document.fonts.ready;
+
+                const canvas = await html2canvas(node, {
+                    scale: 2,
+                    backgroundColor: '#ffffff',
+                    useCORS: true
+                });
+
+                const blob = await new Promise(resolve => {
+                    canvas.toBlob(resolve, 'image/jpeg', 0.95);
+                });
+
+                if (!blob) throw new Error('JPG oluşturulamadı.');
+
+                const imageURL = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = imageURL;
+                link.download = fileName;
+                link.style.display = 'none';
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+
+                setTimeout(() => URL.revokeObjectURL(imageURL), 60000);
+            } catch (error) {
+                console.error('Sertifika indirilemedi:', error);
+                alert(error.message || 'Sertifika indirilemedi. Lütfen tekrar dene.');
+            }
+        }
+    </script>
+</body>
+</html>
